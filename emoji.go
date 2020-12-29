@@ -19,15 +19,18 @@ var (
 
 // CodeMap gets the underlying map of emoji.
 func CodeMap() map[string]string {
+	populateMapsOnce.Do(populateMaps)
 	return emojiCodeMap
 }
 
 // RevCodeMap gets the underlying map of emoji.
 func RevCodeMap() map[string][]string {
+	populateMapsOnce.Do(populateMaps)
 	return emojiRevCodeMap
 }
 
 func AliasList(shortCode string) []string {
+	populateMapsOnce.Do(populateMaps)
 	return emojiRevCodeMap[emojiCodeMap[shortCode]]
 }
 
@@ -50,6 +53,7 @@ func NormalizeShortCode(shortCode string) string {
 var flagRegexp = regexp.MustCompile(":flag-([a-z]{2}):")
 
 func emojize(x string) string {
+	populateMapsOnce.Do(populateMaps)
 	str, ok := emojiCodeMap[x]
 	if ok {
 		return str + ReplacePadding

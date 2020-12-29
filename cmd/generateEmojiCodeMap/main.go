@@ -11,8 +11,10 @@ import (
 	"text/template"
 )
 
-var pkgName string
-var fileName string
+var (
+	pkgName  string
+	fileName string
+)
 
 func init() {
 	log.SetFlags(log.Llongfile)
@@ -32,19 +34,29 @@ type TemplateData struct {
 const templateMapCode = `
 package {{.PkgName}}
 
+import "sync"
+
 // NOTE: THIS FILE WAS PRODUCED BY THE
 // EMOJICODEMAP CODE GENERATION TOOL (github.com/kyokomi/emoji/cmd/generateEmojiCodeMap)
 // DO NOT EDIT
 
 // Mapping from character to concrete escape code.
-var emojiCodeMap = map[string]string{
-	{{range $key, $val := .CodeMap}}":{{$key}}:": {{$val}},
-{{end}}
-}
+var emojiCodeMap map[string]string
 
-var emojiRevCodeMap = map[string][]string{
-	{{range $key, $val := .RevCodeMap}} {{$key}}: { {{range $val}} ":{{.}}:", {{end}} },
+var emojiRevCodeMap map[string][]string
+
+var populateMapsOnce sync.Once
+
+func populateMaps() {
+	emojiCodeMap = map[string]string{
+		{{range $key, $val := .CodeMap}}":{{$key}}:": {{$val}},
 {{end}}
+	}
+
+	emojiRevCodeMap = map[string][]string{
+		{{range $key, $val := .RevCodeMap}} {{$key}}: { {{range $val}} ":{{.}}:", {{end}} },
+{{end}}
+	}
 }
 `
 
